@@ -24,6 +24,13 @@ float triIncrement = 0.00005f;
 float currAngle = 0.0f;
 float angleIncrement = 0.01f;
 
+// scaling
+bool sizeDirection = true;
+float curSize = 0.4f;
+float maxSize = 0.8f;
+float minSize = 0.1f;
+float scalingIncrement = 0.0001f;
+
 // Vertex Shader
 static const char* vShader = "\n\
 #version 330 \n\
@@ -33,7 +40,7 @@ uniform mat4 model; \n\
 \n\
 void main()\n\
 { \n\
-	gl_Position = model * vec4(0.4 * pos.x, 0.4 * pos.y, pos.z, 1.0); \n\
+	gl_Position = model * vec4(pos.x, pos.y, pos.z, 1.0); \n\
 }";
 
 // Fragment Shader
@@ -211,6 +218,20 @@ int main()
 			currAngle -= 360;
 		}
 
+		if (sizeDirection)
+		{
+			curSize += scalingIncrement;
+		}
+		else
+		{
+			curSize -= scalingIncrement;
+		}
+		if (curSize >= maxSize || curSize <= minSize)
+		{
+			sizeDirection = !sizeDirection;
+		}
+
+
 		if (abs(triOffset) >= triMaxOffset) direction = !direction;
 
 		// Clear window
@@ -219,9 +240,10 @@ int main()
 
 		glUseProgram(shader);
 
-		glm::mat4 model(1.0f);
+		glm::mat4 model(1.0f); // identity
 		model = glm::translate(model, glm::vec3(triOffset, 0.0f, 0.0f));
 		model = glm::rotate(model, ToRadians(currAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(curSize, curSize, 1.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 
