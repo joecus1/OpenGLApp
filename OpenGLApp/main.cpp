@@ -14,32 +14,14 @@
 #include "Shader.h"
 #include "Window.h"
 
-// Window dimensions
-const GLint WIDTH = 800, HEIGHT = 600;
-
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader*> shaderList;
 
-// movement
-bool direction = true;
-float triOffset = 0.0f;
-float triMaxOffset = 0.7f;
-float triIncrement = 0.00005f;
-
-// rotation
-float currAngle = 0.0f;
-float angleIncrement = 0.01f;
-
-// scaling
-bool sizeDirection = true;
-float curSize = 0.4f;
-float maxSize = 0.8f;
-float minSize = 0.1f;
-float scalingIncrement = 0.0001f;
-
+// Vertex shader
 static const char* vShaderFile = "Shaders/shader.vert";
 
+// Fragment shader
 static const char* fShaderFile = "Shaders/shader.frag";
 
 float ToRadians(float num)
@@ -96,37 +78,6 @@ int main()
 		// Get and handle user input events
 		glfwPollEvents();
 
-		if (direction)
-		{
-			triOffset += triIncrement;
-		}
-		else
-		{
-			triOffset -= triIncrement;
-		}
-
-		currAngle += angleIncrement;
-		if (currAngle >= 360)
-		{
-			currAngle -= 360;
-		}
-
-		if (sizeDirection)
-		{
-			curSize += scalingIncrement;
-		}
-		else
-		{
-			curSize -= scalingIncrement;
-		}
-		if (curSize >= maxSize || curSize <= minSize)
-		{
-			sizeDirection = !sizeDirection;
-		}
-
-
-		if (abs(triOffset) >= triMaxOffset) direction = !direction;
-
 		// Clear window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -136,14 +87,14 @@ int main()
 		uniformProjection = shaderList[0]->GetProjectionLocation();
 
 		glm::mat4 model(1.0f); // identity
-		model = glm::translate(model, glm::vec3(0.0f, triOffset, -2.5f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -2.5f));
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		meshList[0]->RenderMesh();
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(triOffset, 0.0f, -2.5f));
+		model = glm::translate(model, glm::vec3(1.0f, 0.0f, -2.5f));
 		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		meshList[1]->RenderMesh();

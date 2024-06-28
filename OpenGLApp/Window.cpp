@@ -1,15 +1,18 @@
 #include "Window.h"
 
-Window::Window()
+Window::Window() : Window::Window(800, 600)
 {
-	width = 800;
-	height = 600;
 }
 
 Window::Window(GLint windowWidth, GLint windowHeight)
 {
 	width = windowWidth;
 	height = windowHeight;
+
+	for (size_t i = 0; i < 1024; i++)
+	{
+		keys[i] = 0;
+	}
 }
 
 int Window::Initialize()
@@ -44,6 +47,10 @@ int Window::Initialize()
 	// Set context for GLEW to use
 	glfwMakeContextCurrent(mainWindow);
 
+	// Handle key and mouse input
+	createCallbacks();
+	glfwSetInputMode(mainWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	// Allow modern extension features
 	glewExperimental = GL_TRUE;
 
@@ -59,9 +66,9 @@ int Window::Initialize()
 
 	// Setup our viewport size
 	glViewport(0, 0, bufferWidth, bufferHeight);
+
+	glfwSetWindowUserPointer(mainWindow, this);
 }
-
-
 
 GLint Window::GetBufferWidth()
 {
@@ -78,6 +85,25 @@ bool Window::GetShouldClose()
 	return glfwWindowShouldClose(mainWindow);
 }
 
+bool* Window::GetsKeys()
+{
+	return keys;
+}
+
+GLfloat Window::GetYChange()
+{
+	GLfloat theChange = yChange;
+	yChange = 0.0f;
+	return theChange;
+}
+
+GLfloat Window::GetXChange()
+{
+	GLfloat theChange = xChange;
+	xChange = 0.0f;
+	return theChange;
+}
+
 void Window::SwapBuffers()
 {
 	glfwSwapBuffers(mainWindow);
@@ -87,6 +113,51 @@ Window::~Window()
 {
 	glfwDestroyWindow(mainWindow);
 	glfwTerminate();
+}
+
+void Window::createCallbacks()
+{
+	glfwSetKeyCallback(mainWindow, handleKeys);
+}
+
+void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int mode)
+{
+	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	}
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+		{
+			theWindow->keys[key] = true;
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			theWindow->keys[key] = false;
+		}
+	}
+}
+
+void Window::handleMouse(GLFWwindow* window, double xPos, double yPos)
+{
+	Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+	if (theWindow->mouseFirstMoved)
+	{
+		theWindow->lastX = xPos;
+		theWindow->lastY = yPos;
+		theWindow->mouseFirstMoved = false;
+	}
+
+	theWindow->xChange = xPos - theWindow->lastX;
+	theWindow->yChange = theWindow->lastY - yPos;
+
+	theWindow->lastX = xPos;
+	theWindow->lastY = yPos;
 }
 
 
