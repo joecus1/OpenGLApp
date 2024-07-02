@@ -8,6 +8,8 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 {
 	width = windowWidth;
 	height = windowHeight;
+	xChange = 0.0f;
+	yChange = 0.0f;
 
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -118,6 +120,7 @@ Window::~Window()
 void Window::createCallbacks()
 {
 	glfwSetKeyCallback(mainWindow, handleKeys);
+	glfwSetCursorPosCallback(mainWindow, handleMouse);
 }
 
 void Window::handleKeys(GLFWwindow* window, int key, int code, int action, int mode)
